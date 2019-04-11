@@ -12,47 +12,60 @@ def fetchFplJson(uri):
     resp = session.get(url)
     return json.loads(resp.text)
 
+########################################################
+######        Create the static info     ###############
+########################################################
 print("Fetching and parsing static information...")
 static_info = fetchFplJson("/api/bootstrap-static")
 print("Done!")
+########################################################
+########################################################
+########################################################
 
 class PointSource:
-    action = None
-    count = None
-    pointsTotal = None
+    def __init__(self):
+        self.action = None
+        self.count = None
+        self.pointsTotal = None
 
 class Player:
-    #team based
-    position = None #Position in teamselection I think. 1-11 on pitch, 12-15 on bench
+    def __init__(self):
+        #team based
+        self.position = None #Position in teamselection I think. 1-11 on pitch, 12-15 on bench
 
-    #static
-    name = None
-    playerId = None
-    pointsTotal = None
-    form = None
-    playedMinutes = None
-    totalGoals = None
-    totalAssists = None
+        #static
+        self.name = None
+        self.playerId = None
+        self.pointsTotal = None
+        self.form = None
+        self.playedMinutes = None
+        self.totalGoals = None
+        self.totalAssists = None
 
 
-    #gw
-    pointsGw = None
-    bonusPointsGw = None
-    pointsSources = list() 
+        #gw
+        self.pointsGw = None
+        self.bpsGw = None
+        self.pointsSources = list() 
 
 
 class Team:
-    teamId = None
-    name = None
-    owner = None
-    players = list()
-    pointsGw = None
-    pointsTotal = None
+    def __init__(self):
+        self.teamId = None
+        self.name = None
+        self.owner = None
+        self.players = list()
+        self.pointsGw = None
+        self.pointsTotal = None
 
 class LeagueInfo:
-    leagueId = None
-    currentGw = None
-    teams = list()
+    def __init__(self):
+        self.leagueId = None
+        self.currentGw = None
+        self.teams = list()
+
+def sortLeague(league):
+    league.teams = sorted(league.teams, key=lambda x: x.pointsTotal, reverse=True)
 
 
 #Assumes correct player id. Else it crashes or returns wrong player
@@ -101,7 +114,6 @@ def setTeamInformation(teamObj, teamId, gw):
 def setLeagueInformation(leagueObj):
     leagueJson = fetchFplJson("api/league/" + str(leagueObj.leagueId) + "/details");
     gameJson = fetchFplJson("api/game");
-    leagueObj = LeagueInfo()
     leagueObj.currentGw = gameJson["current_event"]
     for leagueEntry in leagueJson["league_entries"]:
         tmp = Team()
@@ -110,11 +122,38 @@ def setLeagueInformation(leagueObj):
 
         leagueObj.teams.append(tmp)
 
-
-league = LeagueInfo
+###########################################################
+####### Initialize league, teams and players ##############
+###########################################################
+league = LeagueInfo()
 league.leagueId = "2150"
 setLeagueInformation(league)
 
-league.teams = sorted(league.teams, key=lambda x: x.pointsTotal, reverse=True)
-for x in league.teams:
-    print(str(x.name) + " - " + str(x.pointsTotal))
+sortLeague(league)
+
+###########################################################
+###########################################################
+###########################################################
+
+
+def updateScores(league):
+    liveJson = fetchFplJson("api/event/" + str(league.currentGw) + "/live")["elements"]
+    for team in league.teams:
+        for player in team.players:
+            playerStats = liveJson[str(player.playerId)]["stats"]
+            player.pointsGw = playerStats["total_points"]
+            player.bpsGw = playerStats["bps"]
+
+            
+            explanation = liveJson[str(player.playerId)]["explain"]
+            if len(explanation) == 0:
+                player.pointSources = list()
+            else:
+                for sourceJson in explanation[0][0]:
+                    source = PointSource()
+                    source.action = sourceJson["name"]
+                    source.count = sourceJson["value"]
+                    source.pointsTotal = sourceJson["points"]
+
+
+updateScores(league)
