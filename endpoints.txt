@@ -1,0 +1,21 @@
+No Slack Draft ID: 2150
+Oskar team ID: 7523
+
+
+League details: 
+https://draft.premierleague.com/api/league/<league-id>/details
+
+Game details(current event (gw) current_event_finished etc): 
+https://draft.premierleague.com/api/game
+
+
+FPL Team details: 
+https://draft.premierleague.com/api/entry/<Team ID>/event/<current event (GW)>
+
+
+Event live: 
+https://draft.premierleague.com/api/event/<current event (GW)>/live
+Probably the current updated points for each player
+
+Simple team details:
+https://draft.premierleague.com/api/entry/<Team ID>/public
