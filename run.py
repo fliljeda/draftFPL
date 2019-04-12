@@ -139,11 +139,13 @@ sortLeague(league)
 def updateScores(league):
     liveJson = fetchFplJson("api/event/" + str(league.currentGw) + "/live")["elements"]
     for team in league.teams:
+        pointsGw = 0
         for player in team.players:
             playerStats = liveJson[str(player.playerId)]["stats"]
             player.pointsGw = playerStats["total_points"]
             player.bpsGw = playerStats["bps"]
 
+            pointsGw += int(player.pointsGw)
             
             explanation = liveJson[str(player.playerId)]["explain"]
             if len(explanation) == 0:
@@ -154,6 +156,87 @@ def updateScores(league):
                     source.action = sourceJson["name"]
                     source.count = sourceJson["value"]
                     source.pointsTotal = sourceJson["points"]
+                    player.pointsSources.append(source)
+        team.pointsGw = pointsGw
 
 
 updateScores(league)
+
+writer.pra(league)
+
+
+html_base = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+    <script>
+        setTimeout(function(){
+           window.location.reload(1);
+        }, 5000);
+    </script>
+    <title>
+        No Slack Draft Current GW Standings
+    </title>
+</head>
+<body> 
+
+"""
+
+html_end = """
+</body>
+"""
+
+
+def buildHtmlTeam(team):
+    html_text = """
+    <div class="panel panel-default">
+        <div class="panel-heading"> 
+        <p><font size="8">
+    """
+    html_text+= str(team.name) + " - " + str(team.pointsGw)
+
+    html_text += """
+        </font></p> 
+        </div>
+    <div class="panel-body">
+    """
+    for player in team.players:
+        html_text += "<p>" + str(player.name) + " - " + str(player.pointsGw) + "p" + "</p>"
+
+    html_text += """        
+        </div>
+    </div>
+    """
+    return html_text
+
+html_final = html_begin
+for team in league.teams:
+    html_final += buildHtmlTeam(team)
+
+html_final += html_end
+
+
+
+#for t in league.teams:
+#    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+#    print("Team: " + str(t.name))
+#    print("Owner: " + str(t.owner))
+#    print("Players:")
+#    for p in t.players:
+#        print("------------------------")
+#        print("\t Name: " + str(p.name))
+#        print("\t Points GW: " + str(p.pointsGw))
+#        if len(p.pointsSources) == 0:
+#            continue
+#        print("\t Sources for points: ")
+#        for s in p.pointsSources:
+#            print("\t\t " + str(s.count) + " " + str(s.action) + " for " + str(s.pointsTotal) + " points")
+#    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+
