@@ -58,7 +58,7 @@ def buildHtmlLeague(league):
         </title>
     </head>
     <body> 
-
+        <main class="container">
     """
 
     html_final = html_begin
@@ -66,6 +66,7 @@ def buildHtmlLeague(league):
         html_final += buildHtmlTeamDiv(team)
 
     html_end = """
+        </main>
     </body>
     """
 
