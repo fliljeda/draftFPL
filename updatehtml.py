@@ -80,12 +80,10 @@ while True:
     updateScores(league)
     sortLeague(league, gameweek=False)
     html = buildHtmlLeague(league)
-    #print(html_final)
 
-    with open('test.html', 'w+') as f:
+    with open('index.html', 'w+') as f:
         f.write(html)
     loop_n += 1
-    print("Loop: " + str(loop_n))
     time.sleep(5)
 
 
