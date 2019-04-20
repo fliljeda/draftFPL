@@ -1,1 +1,1 @@
-python3 buildhtml.py
+python3 updatehtml.py
