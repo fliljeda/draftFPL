@@ -5,36 +5,29 @@ from leagueinfo import *
 
 def teamHtml(team):
     html = f"""
-            <div class="col-md-4">
-                <p><font size="8">
-                    {str(team.name)}
-                </font></p> 
-            </div>
-            <div class="col-md-4">
-                <p><font size="8">
+            <h5 class="card-title">
+                {str(team.name)}
+            </h5>
+            <div class="card-body row px-0">
+                <div class="col">
                     {"Total: " + str(team.pointsTotal)}
-                </font></p> 
-            </div>
-            <div class="col-md-4">
-                <p><font size="8">
+                </div>
+                <div class="col">
                     {"GW:" + str(team.pointsGw) + "p"}
-                </font></p> 
+                </div>
             </div>
     """
     return html
 
 def buildHtmlTeamDiv(team):
     html_text = f"""
-    <div class="panel panel-default">
-        <div class="panel-heading"> 
+    <div class="card mt-3 shadow-sm">
+        <div class="card-body">
             {teamHtml(team)}
-        </div>
-        <div class="panel-body">
         </div>
     </div>
     """
     return html_text
-
 
 def buildHtmlLeague(league):
 
@@ -58,7 +51,7 @@ def buildHtmlLeague(league):
             No Slack Draft Current GW Standings
         </title>
     </head>
-    <body> 
+    <body class="bg-light"> 
         <main class="container">
     """
 
