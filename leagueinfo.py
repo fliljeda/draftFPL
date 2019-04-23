@@ -24,36 +24,94 @@ print("Done!")
 ########################################################
 
 PointSource = namedtuple('point_source', ['action', 'count', 'pointsTotal'])
-"""
-More suitable to use namedtuple
-class PointSource:
-    def __init__(self):
-        self.action = None
-        self.count = None
-        self.pointsTotal = None
-"""
-
 
 class Player:
-    def __init__(self, position = None):
-        #team based
-        self.position = position #Position in teamselection I think. 1-11 on pitch, 12-15 on bench
+    # Static player info. Fetchable with Players.from_id(id)
+    _player_repo = {}
+    @classmethod
+    def init_repo(cls, player_info):
+        """Initializes the player repository.
+            Static player info can be fetched with Player.from_id(id)
+        Parameters
+        ----------
+        player_info : list
+            List of player-objects from Premier League API
+        """
+        cls._player_repo = {
+            data['id']: Player(**data) for data in player_info
+        }
 
-        #static
-        self.name = None
-        self.playerId = None
-        self.pointsTotal = None
-        self.form = None
-        self.playedMinutes = None
-        self.totalGoals = None
-        self.totalAssists = None
+    @classmethod
+    def from_id(cls, pid):
+        """Fetches player object from player-id
+        Parameters
+        ----------
+        pid : int
+            FPL id of the player to be fetched
+        Returns
+        -------
+        Player
+            A player object with the given id
+        """
+        return Player._player_repo[pid]
+
+    def __init__(self, **static_info):
+        self.__dict__ = static_info
+        self._pointsGw = 0
+        self._bpsGw = 0
+        self.pointsSources = []
+
+    # Backwards compatible api
+    @property
+    def playerId(self):
+        return self.id
+    @property
+    def name(self):
+        return f'{self.first_name} {self.second_name}'
+
+    @property
+    def pointsTotal(self):
+        return self._pointsGw or int(self.total_points)
+    @pointsTotal.setter
+    def pointsTotal(self, val):
+        self._pointsGw = int(val)
+
+    @property
+    def playedMinutes(self):
+        return self.minutes
+    @property
+    def totalGoals(self):
+        return self.assists
+    @property
+    def totalAssists(self):
+        return self.goals_scored
+
+    @property
+    def position(self):
+        return int(self.element_type)
+
+    @property
+    def pointsGw(self):
+        return self._bpsGw or int(self.event_points)
+    @pointsGw.setter
+    def pointsGw(self, val):
+        self._bpsGw = int(val)
 
 
-        #gw
-        self.pointsGw = None
-        self.bpsGw = None
-        self.pointsSources = list() 
+    def __repr__(self):
+        """Class representation.
+            The representation string will look like:
+            >>> print(player)
+            Player(id = 1, assists = 0, bonus = 3, ...)
 
+            Properties are not included in these.
+        """
+        return '{}({})'.format(
+            self.__class__.__name__,
+            ', '.join(f'{key} = {self.__dict__[key]}' for key in vars(self))
+        )
+
+Player.init_repo(static_info['elements'])
 
 class Team:
     def __init__(self):
@@ -89,20 +147,6 @@ def getStaticPlayerJson(playerId):
                 break
     return player_info
 
-
-def setPlayerInformation(playerObj, playerId):
-    playerJson = getStaticPlayerJson(playerId)
-    playerObj.playerId = playerId
-    playerObj.name = playerJson["first_name"] + " " + playerJson["second_name"]
-    playerObj.pointsTotal = playerJson["total_points"]
-    playerObj.pointsGw = playerJson["event_points"]
-    playerObj.playedMinutes = playerJson["minutes"]
-    playerObj.totalGoals = playerJson["assists"]
-    playerObj.totalAssists = playerJson["goals_scored"]
-
-    playerObj.form = playerJson["form"]
-
-
 #Sets initial team information, such as current players and the total points 
 #(note that points may not be updated during matches)
 def setTeamInformation(teamObj, teamId, gw):
@@ -115,12 +159,7 @@ def setTeamInformation(teamObj, teamId, gw):
     teamObj.pointsGw = teamPubJson["event_points"] #Not live updated
 
     teamGwJson = fetchFplJson("api/entry/" + str(teamObj.teamId) + "/event/" + str(gw));
-    for pick in teamGwJson["picks"]:
-        player = Player()
-        # player = Player(position = pick['position']
-        player.position = pick["position"]
-        setPlayerInformation(player, pick["element"])
-        teamObj.players.append(player)
+    teamObj.players = [Player.from_id(pick['element']) for pick in teamGwJson['picks']]
 
 #Fill information about the league and the teams. Uses current gameweek for team details
 def setLeagueInformation(leagueObj):
@@ -147,7 +186,7 @@ def updateScores(league):
             player.bpsGw = playerStats["bps"]
 
             if int(player.position) <= 11:
-                pointsGwPlayers += int(player.pointsGw)
+                pointsGwPlayers += player.pointsGw
             
             explanation = liveJson[str(player.playerId)]["explain"]
             if len(explanation) == 0:
