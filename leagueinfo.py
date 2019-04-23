@@ -81,10 +81,10 @@ class Player:
         return self.minutes
     @property
     def totalGoals(self):
-        return self.assists
+        return self.goals_scored
     @property
     def totalAssists(self):
-        return self.goals_scored
+        return self.assists
 
     @property
     def position(self):
