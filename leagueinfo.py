@@ -23,7 +23,7 @@ print("Done!")
 ########################################################
 ########################################################
 
-PointSource = namedtuple('point_source', ['action', 'count', 'pointsTotal'])
+PointSource = namedtuple('point_source', ['action', 'count', 'pointsTotal', 'gw_match_num', 'match_id'])
 
 class Player:
     # Static player info. Fetchable with Players.from_id(id)
@@ -192,11 +192,14 @@ def updateScores(league):
             if len(explanation) == 0:
                 player.pointSources = list()
             else:
-                for sourceJson in explanation[0][0]:
-                    source = PointSource(action = sourceJson['name'],
-                                         count = sourceJson['value'],
-                                         pointsTotal = sourceJson['points'])
-                    player.pointsSources.append(source)
+                for idx, match in enumerate(explanation):
+                    for sourceJson in match[0]:
+                        source = PointSource(action = sourceJson['name'],
+                                             count = sourceJson['value'],
+                                             pointsTotal = sourceJson['points'],
+                                             gw_match_num = idx,
+                                             match_id = match[1])
+                        player.pointsSources.append(source)
 
 
         teamPubJson = fetchFplJson("api/entry/" + str(team.teamId) + "/public")["entry"];
