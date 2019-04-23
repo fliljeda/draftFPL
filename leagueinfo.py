@@ -185,7 +185,7 @@ def updateScores(league):
             player.pointsGw = playerStats["total_points"]
             player.bpsGw = playerStats["bps"]
 
-            if int(player.position) <= 11:
+            if int(player.position) <= 11: #The bench is pos 12-15
                 pointsGwPlayers += player.pointsGw
             
             explanation = liveJson[str(player.playerId)]["explain"]
