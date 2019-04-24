@@ -1,3 +1,4 @@
+# encoding: utf-8
 import requests
 import json
 import time
@@ -122,6 +123,24 @@ class Team:
         self.pointsGw = None
         self.pointsTotal = None
 
+        # Keep track of player position on the team.
+        # A position <= 11 indicates they're on the field
+        self.player_positions = {}
+
+    def benched(self, pid):
+        """ Checks if a player is benched or on the field.
+            A player is benched if their position is > 11.
+        Arguments
+        ---------
+        pid : int
+            The id of the player
+        Returns
+        -------
+        bool
+            True if the player is benched, False otherwise
+        """
+        return self.player_positions[pid] > 11
+
 class LeagueInfo:
     def __init__(self):
         self.leagueId = None
@@ -160,6 +179,7 @@ def setTeamInformation(teamObj, teamId, gw):
 
     teamGwJson = fetchFplJson("api/entry/" + str(teamObj.teamId) + "/event/" + str(gw));
     teamObj.players = [Player.from_id(pick['element']) for pick in teamGwJson['picks']]
+    teamObj.player_positions = { pick['element']: pick['position'] for pick in teamGwJson['picks'] }
 
 #Fill information about the league and the teams. Uses current gameweek for team details
 def setLeagueInformation(leagueObj):
@@ -185,7 +205,7 @@ def updateScores(league):
             player.pointsGw = playerStats["total_points"]
             player.bpsGw = playerStats["bps"]
 
-            if int(player.position) <= 11: #The bench is pos 12-15
+            if not team.benched(player.id):
                 pointsGwPlayers += player.pointsGw
             
             explanation = liveJson[str(player.playerId)]["explain"]
