@@ -115,17 +115,44 @@ class Player:
 Player.init_repo(static_info['elements'])
 
 class Team:
-    def __init__(self):
-        self.teamId = None
-        self.name = None
-        self.owner = None
-        self.players = list()
-        self.pointsGw = None
-        self.pointsTotal = None
-
-        # Keep track of player position on the team.
-        # A position <= 11 indicates they're on the field
+    """Adapter class for the team information fetched from the FPL API
+    
+    Adapter class converting the FPL API to a nicer and easily 
+    usable format. The input is the data returned from the API.
+    Fields were renamed to keep backwards compatability.
+    """
+    def __init__(self, **static_info):
+        self.__dict__ = static_info
+        self.players = []
         self.player_positions = {}
+
+        self._pointsTotal = 0
+        self._pointsGw = 0
+    
+    # Preserving old API
+    @property
+    def teamId(self):
+        return self.id
+
+    @property
+    def owner(self):
+        return f'{self.player_first_name} {self.player_last_name}'
+    
+    @property
+    def pointsTotal(self):
+        return self._pointsTotal or self.overall_points
+
+    @pointsTotal.setter
+    def pointsTotal(self, val):
+        self._overall_points = val
+        
+    @property
+    def pointsGw(self):
+        return self._pointsGw or self.event_points
+    
+    @pointsGw.setter
+    def pointsGw(self, val):
+        self._pointsGw = val
 
     def benched(self, pid):
         """ Checks if a player is benched or on the field.
@@ -140,6 +167,12 @@ class Team:
             True if the player is benched, False otherwise
         """
         return self.player_positions[pid] > 11
+        
+    def __repr__(self):
+        return '{}({})'.format(
+            self.__class__.__name__,
+            ', '.join(f'{key} = {self.__dict__[key]}' for key in vars(self))
+        )
 
 class LeagueInfo:
     def __init__(self):
@@ -152,34 +185,6 @@ def sortLeague(league, gameweek = True):
         league.teams = sorted(league.teams, key=lambda x: x.pointsGw, reverse=True)
     else:
         league.teams = sorted(league.teams, key=lambda x: x.pointsTotal, reverse=True)
-        
-
-
-#Assumes correct player id. Else it crashes or returns wrong player
-def getStaticPlayerJson(playerId):
-    player_info = static_info["elements"][playerId-1]
-    if player_info["id"] != playerId:
-        #Heuristic of 1-indexed entry->player does not match. Search for correct 
-        for player_element in static_info["elements"]:
-            if player_element["id"] == playerId:
-                player_info = player_element
-                break
-    return player_info
-
-#Sets initial team information, such as current players and the total points 
-#(note that points may not be updated during matches)
-def setTeamInformation(teamObj, teamId, gw):
-    teamPubJson = fetchFplJson("api/entry/" + str(teamId) + "/public")["entry"];
-    teamObj.name = teamPubJson["name"]
-    teamObj.teamId = teamPubJson["id"]
-    teamObj.owner = teamPubJson["player_first_name"] + " " + teamPubJson["player_last_name"]
-
-    teamObj.pointsTotal = teamPubJson["overall_points"] #Not live updated
-    teamObj.pointsGw = teamPubJson["event_points"] #Not live updated
-
-    teamGwJson = fetchFplJson("api/entry/" + str(teamObj.teamId) + "/event/" + str(gw));
-    teamObj.players = [Player.from_id(pick['element']) for pick in teamGwJson['picks']]
-    teamObj.player_positions = { pick['element']: pick['position'] for pick in teamGwJson['picks'] }
 
 #Fill information about the league and the teams. Uses current gameweek for team details
 def setLeagueInformation(leagueObj):
@@ -187,11 +192,14 @@ def setLeagueInformation(leagueObj):
     gameJson = fetchFplJson("api/game");
     leagueObj.currentGw = gameJson["current_event"]
     for leagueEntry in leagueJson["league_entries"]:
-        tmp = Team()
-        #Set team meta-information
-        setTeamInformation(tmp, leagueEntry["entry_id"],leagueObj.currentGw)
+        response = fetchFplJson(f'api/entry/{leagueEntry["entry_id"]}/public')["entry"]
+        team_obj = Team(**response)
+        
+        teamGwJson = fetchFplJson(f'api/entry/{team_obj.teamId}/event/{leagueObj.currentGw}')
+        team_obj.players = [Player.from_id(pick['element']) for pick in teamGwJson['picks']]
+        team_obj.player_positions = { pick['element']: pick['position'] for pick in teamGwJson['picks'] }
 
-        leagueObj.teams.append(tmp)
+        leagueObj.teams.append(team_obj)
 
 
 
