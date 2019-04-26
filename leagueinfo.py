@@ -144,7 +144,7 @@ class Team:
 
     @pointsTotal.setter
     def pointsTotal(self, val):
-        self._overall_points = val
+        self._pointsTotal = val
         
     @property
     def pointsGw(self):
