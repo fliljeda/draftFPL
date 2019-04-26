@@ -31,7 +31,7 @@ def buildHtmlTeamDiv(team):
 
 def buildHtmlLeague(league):
 
-    html_begin = """
+    html_begin = f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -43,12 +43,12 @@ def buildHtmlLeague(league):
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
         <script>
-            setTimeout(function(){
+            setTimeout(function(){{
                window.location.reload(1);
-            }, 5000);
+            }}, 5000);
         </script>
         <title>
-            No Slack Draft Current GW Standings
+            No Slack Draft GW{league.currentGw}
         </title>
     </head>
     <body class="bg-light"> 

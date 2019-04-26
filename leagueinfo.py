@@ -186,11 +186,16 @@ def sortLeague(league, gameweek = True):
     else:
         league.teams = sorted(league.teams, key=lambda x: x.pointsTotal, reverse=True)
 
+# Update info fetched from the api/game endpoint
+def updateGameInfo(league):
+    gameJson = fetchFplJson("api/game");
+    league.currentGw = gameJson["current_event"]
+
+
 #Fill information about the league and the teams. Uses current gameweek for team details
 def setLeagueInformation(leagueObj):
     leagueJson = fetchFplJson("api/league/" + str(leagueObj.leagueId) + "/details");
-    gameJson = fetchFplJson("api/game");
-    leagueObj.currentGw = gameJson["current_event"]
+    updateGameInfo(leagueObj)
     for leagueEntry in leagueJson["league_entries"]:
         response = fetchFplJson(f'api/entry/{leagueEntry["entry_id"]}/public')["entry"]
         team_obj = Team(**response)
@@ -204,6 +209,7 @@ def setLeagueInformation(leagueObj):
 
 
 def updateScores(league):
+    updateGameInfo(league) #TODO Update only when necessary
     liveJson = fetchFplJson("api/event/" + str(league.currentGw) + "/live")["elements"]
     for team in league.teams:
 
