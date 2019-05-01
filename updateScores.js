@@ -1,5 +1,5 @@
 var wsLoc = "wss://noslack.se/ws/"
-var ws = new WebSocket(wsLoc, "update-scores");
+var ws = new WebSocket(wsLoc);
 ws.onmessage = function(event){
     msg= JSON.parse(event.data)
 
