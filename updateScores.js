@@ -1,5 +1,4 @@
-var wsLoc = "ws://127.0.0.1:8008/"
-console.log(wsLoc)
+var wsLoc = "wss://noslack.se/ws/"
 var ws = new WebSocket(wsLoc, "update-scores");
 ws.onmessage = function(event){
     msg= JSON.parse(event.data)
@@ -11,7 +10,6 @@ ws.onmessage = function(event){
     for(x in msg){
         teamVals = msg[x]
         var clone = template.content.cloneNode(true).children[0]
-        console.log(clone)
         var teamName = clone.getElementsByClassName("team-name")[0]
         var pointsTot = clone.getElementsByClassName("team-points-total")[0]
         var pointsGw = clone.getElementsByClassName("team-points-gw")[0]

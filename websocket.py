@@ -8,17 +8,17 @@ import datetime
 import random
 import websockets
 import json
+import ssl
 
 async def updateInfoAsync():
     while True:
-        print("Updating scores")
         updateScores(league)
         sortLeague(league, gameweek=False)
-        print("Done updating. Sleeping..")
         await asyncio.sleep(15)
 
 async def sendScores(websocket, path):
     while True:
+        print("Sending scores")
         msg = json.dumps([1,2,3,4,5,6])
 
         obj = []
@@ -31,10 +31,11 @@ async def sendScores(websocket, path):
         await asyncio.sleep(5)
 
 
-start_server = websockets.serve(sendScores, '127.0.0.1', 8008)
-
-#asyncio.get_event_loop().run_until_complete(updateScoreLoop())
-asyncio.get_event_loop().run_until_complete(start_server)
 updateTask = asyncio.get_event_loop().create_task(updateInfoAsync())
+start_server = websockets.serve(sendScores, 'localhost', 8008)
+
+
+asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_until_complete(updateTask)
+
 asyncio.get_event_loop().run_forever()
