@@ -10,125 +10,34 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
         <script>
-            setTimeout(function(){
-               window.location.reload(1);
-            }, 5000);
+        
         </script>
+        <script src="updateScores.js"></script>
         <title>
             No Slack Draft Current GW Standings
         </title>
+        <template id="team-template">
+            <div class="card mt-3 shadow-sm">
+                <div class="card-body team-card-body">
+                    
+                    <h5 class="card-title team-name">
+                        TEAM NAME
+                    </h5>
+                    <div class="card-body row px-0">
+                        <div class="col team-points-total">
+                            Total: 
+                        </div>
+                        <div class="col team-points-gw">
+                            GW:
+                        </div>
+                    </div>
+            
+                </div>
+            </div>
+        </template>
     </head>
     <body class="bg-light"> 
-        <main class="container">
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                En salahig blanding
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1699
-                </div>
-                <div class="col">
-                    GW:65p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                Åderpålens IK
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1655
-                </div>
-                <div class="col">
-                    GW:35p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                Bargain Bin
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1629
-                </div>
-                <div class="col">
-                    GW:52p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                Poppers BK
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1619
-                </div>
-                <div class="col">
-                    GW:53p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                Murphy's Unlucky Lot
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1528
-                </div>
-                <div class="col">
-                    GW:40p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
-    <div class="card mt-3 shadow-sm">
-        <div class="card-body">
-            
-            <h5 class="card-title">
-                Peters Paralympier
-            </h5>
-            <div class="card-body row px-0">
-                <div class="col">
-                    Total: 1365
-                </div>
-                <div class="col">
-                    GW:27p
-                </div>
-            </div>
-    
-        </div>
-    </div>
-    
+        <main class="container" id="team-container">
         </main>
     </body>
     
