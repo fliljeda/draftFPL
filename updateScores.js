@@ -6,7 +6,7 @@ ws.onmessage = function(event){
 	var actions = Object.keys(msg)
 	for(key in actions){
         action = actions[key]
-        console.log(action)
+        console.log("Action received " + action)
 		switch(action){
 			case "update-scores":
 				setUpdatedScores(msg[action])
