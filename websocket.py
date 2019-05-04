@@ -17,6 +17,8 @@ async def updateInfoAsync():
         await asyncio.sleep(15)
 
 async def sendScores(websocket, path):
+    gwObj = {"gw":league.currentGw}
+    await websocket.send(json.dumps(gwObj))
     while True:
         print("Sending scores")
         msg = json.dumps([1,2,3,4,5,6])
@@ -26,6 +28,7 @@ async def sendScores(websocket, path):
             tmp = {"name":x.name, "points-total":x.pointsTotal, "points-gw":x.pointsGw}
             obj.append(tmp)
             
+        obj = {"update-scores":obj}
         msg = json.dumps(obj)
         await websocket.send(msg)
         await asyncio.sleep(5)
