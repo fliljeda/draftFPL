@@ -125,6 +125,7 @@ class Team:
         self.__dict__ = static_info
         self.players = []
         self.player_positions = {}
+        self.subs = []
 
         self._pointsTotal = 0
         self._pointsGw = 0
@@ -166,6 +167,11 @@ class Team:
         bool
             True if the player is benched, False otherwise
         """
+        for sub in self.subs:
+            if sub["element_in"] == pid:
+                return False
+            if sub["element_out"] == pid:
+                return True
         return self.player_positions[pid] > 11
         
     def __repr__(self):
@@ -215,11 +221,20 @@ def updateGameInfo(league):
     if gw != league.currentGw:
         setLeagueInformation(league)
 
+def set_subs(team_obj, league_obj):
+    team_gw_json = fetchFplJson(f'api/entry/{team_obj.teamId}/event/{league_obj.currentGw}')
+    team_obj.subs = []
+    for sub in team_gw_json["subs"]:
+        tmp = {}
+        tmp["element_in"] = sub["element_in"] 
+        tmp["element_out"] = sub["element_out"]
+        team_obj.subs.append(tmp)
 
 def updateScores(league):
     updateGameInfo(league) #TODO Update only when necessary
     liveJson = fetchFplJson("api/event/" + str(league.currentGw) + "/live")["elements"]
     for team in league.teams:
+        set_subs(team, league)
 
         pointsGwPlayers = 0
         for player in team.players:
