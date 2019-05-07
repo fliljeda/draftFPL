@@ -14,7 +14,7 @@ async def updateInfoAsync():
     while True:
         updateScores(league)
         sortLeague(league, gameweek=False)
-        await asyncio.sleep(15)
+        await asyncio.sleep(30)
 
 async def sendScores(websocket, path):
     gwObj = {"gw":league.currentGw}
@@ -31,7 +31,7 @@ async def sendScores(websocket, path):
         obj = {"update-scores":obj}
         msg = json.dumps(obj)
         await websocket.send(msg)
-        await asyncio.sleep(5)
+        await asyncio.sleep(15)
 
 
 updateTask = asyncio.get_event_loop().create_task(updateInfoAsync())
