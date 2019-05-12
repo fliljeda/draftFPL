@@ -196,7 +196,7 @@ def sortLeague(league, gameweek = True):
 
 #Fill information about the league and the teams. Uses current gameweek for team details
 def setLeagueInformation(leagueObj, gw = None):
-    league = LeagueInfo()
+    leagueObj = LeagueInfo()
     if gw == None:
         gameJson = fetchFplJson("api/game");
         gw = gameJson["current_event"]
