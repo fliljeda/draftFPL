@@ -1,3 +1,5 @@
 *.swp
 __pycache__/
 *.out
+*.my.sh
+nohup.out

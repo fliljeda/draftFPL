@@ -1,5 +1,6 @@
 var wsLoc = "wss://noslack.se/ws/"
 var ws = new WebSocket(wsLoc);
+
 ws.onmessage = function(event){
     msg= JSON.parse(event.data)
 	
@@ -26,6 +27,7 @@ function changeGw(gw){
 }
 
 function setUpdatedScores(scores){
+    console.log(scores.length)
 
     var teamContainer = document.getElementById("team-container")
     teamContainer.innerHTML = ""
