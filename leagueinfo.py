@@ -277,7 +277,7 @@ def updateScores(league):
 ####### Initialize league, teams and players ##############
 ###########################################################
 league = LeagueInfo()
-league.leagueId = "2150"
+league.leagueId = "305"
 setLeagueInformation(league)
 
 
