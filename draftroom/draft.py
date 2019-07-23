@@ -18,7 +18,7 @@ def fetch_fpl_json(uri):
     resp = session.get(url)
     return json.loads(resp.text)
 
-league_id = 31752
+league_id = 33536
 print("Fetching and parsing static information...")
 static_info = fetch_fpl_json("/api/bootstrap-static")
 details = fetch_fpl_json(f"/api/league/{league_id}/details")
@@ -61,17 +61,19 @@ def choices():
     league_teams = league_team_names()
     for pick in choices["choices"]:
         if pick["choice_time"] is None:
-            print("Found next pick")
             break
         player_name = player_obj_fromid(pick["element"])
         league_teams[pick["entry_name"]].append(player_name)
     return league_teams
 
 async def update_choices(websocket, path):
+    print("Connection");
     league_teams = league_team_names()
+    await websocket.send(json.dumps({"action":"update", "picks":league_teams}))
     pick_index = 0
     while True:
         choices = fetch_fpl_json(f"/api/draft/{league_id}/choices")["choices"]
+        league_teams_update = league_team_names()
         newpicks = False
         while pick_index < len(choices):
             pick = choices[pick_index]
@@ -83,15 +85,16 @@ async def update_choices(websocket, path):
                 pick_index += 1
                 player_name = player_obj_fromid(pick["element"])
                 league_teams[pick["entry_name"]].append(player_name)
+                league_teams_update[pick["entry_name"]].append(player_name)
                 newpicks = True
         if newpicks:
             print("Sending through websocket..")
-            await websocket.send(json.dumps(league_teams))
-        print("Sleeping...")
+            message = {"action":"update", "picks":league_teams_update}
+            await websocket.send(json.dumps(message))
         await asyncio.sleep(5)
     return league_teams
 
-print(choices())
+#print(choices())
 
 
 
