@@ -32,7 +32,6 @@ print("Done!")
 def league_team_names():
     teams = {}
     for team in details["league_entries"]:
-        print(team["entry_name"])
         teams[team["entry_name"]] = []
     return teams
 
