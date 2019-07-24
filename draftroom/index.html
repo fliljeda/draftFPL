@@ -18,28 +18,28 @@
         </title>
         <template id="team-template">
             <div class="card mt-3 shadow-sm">
-                <div class="card-body team-card-body">
+                <div class="card-body p-2">
                     
-                    <h5 class="card-title team-name">
+                    <h5 class="card-title team-name text-center" style="font-weight:bold">
                         TEAM NAME
                     </h5>
-                    <div class="card-body row px-0">
-                        <div class="col">
+                    <div class="card-body row p-2">
+                        <div class="col px-2">
                             <strong>Goalkeepers: </strong>
                             <div class="picked-gks">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col px-2">
                             <strong>Defenders: </strong>
                             <div class="picked-defs">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col px-2">
                             <strong>Midfielders: </strong>
                             <div class="picked-mids">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col px-2">
                             <strong>Forwards: </strong>
                             <div class="picked-fwds">
                             </div>
@@ -51,7 +51,9 @@
         </template>
     </head>
     <body class="bg-light"> 
-        <main class="container" id="team-container">
+        <main class="row" id="team-container">
+            <div class="col-md-6 pr-2" id="team-container-left"></div>
+            <div class="col-md-6 pr-2" id="team-container-right"></div>
         </main>
     </body>
     

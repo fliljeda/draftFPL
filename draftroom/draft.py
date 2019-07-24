@@ -16,9 +16,13 @@ base_url = 'https://draft.premierleague.com/'
 def fetch_fpl_json(uri):
     url = base_url + uri
     resp = session.get(url)
-    return json.loads(resp.text)
+    return resp.json()
 
-league_id = 33536
+league_id = "305"
+inp = input(f"League ID (default noslack @ {league_id}): ")
+if(inp != ""):
+    league_id = inp
+
 print("Fetching and parsing static information...")
 static_info = fetch_fpl_json("/api/bootstrap-static")
 details = fetch_fpl_json(f"/api/league/{league_id}/details")
@@ -28,13 +32,19 @@ print("Done!")
 def league_team_names():
     teams = {}
     for team in details["league_entries"]:
+        print(team["entry_name"])
         teams[team["entry_name"]] = []
     return teams
 
 def team_name_fromid(team_id):
     team = static_info["teams"][team_id-1]
-    name = f'{team["name"]}'
+    name = f'{team["short_name"]}'
     return name
+
+def team_code_fromid(team_id):
+    team = static_info["teams"][team_id-1]
+    code = f'{team["code"]}'
+    return code
 
 def pos_from_type(t):
     if t == 1:
@@ -52,8 +62,10 @@ def player_obj_fromid(player_id):
     player = static_info["elements"][player_id-1]
     m_player = {}
     m_player["name"] = player["web_name"]
+    m_player["id"] = player["id"]
     m_player["team"] = team_name_fromid(player["team"])
     m_player["pos"] = pos_from_type(player["element_type"])
+    m_player["team_code"] = team_code_fromid(player["team"])
     return m_player
 
 def choices():

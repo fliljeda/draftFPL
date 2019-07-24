@@ -2,10 +2,19 @@ var wsLoc = "wss://noslack.se/ws/"
 var ws = new WebSocket(wsLoc);
 
 class Player {
-    constructor(name, team, pos){
-        this.name = name;
-        this.team = team;
-        this.pos = pos;
+    constructor(player){
+        this.name = player.name;
+        this.team = player.team;
+        this.pos = player.pos;
+        this.teamCode = player.team_code;
+        this.id = "playerid_" + player.id;
+    }
+
+    // Returns the shirt tag of players
+    getShirtUrl(){
+        var start = "https://draft.premierleague.com/img/shirts/standard/shirt_";
+        var end = "-36.png";
+        return start + this.teamCode + end;
     }
 }
 
@@ -18,7 +27,7 @@ class LeagueTeam {
 
     addPicks(picks){
         for(var player of picks){
-            this.players.push(new Player(player.name, player.team, player.pos));
+            this.players.push(new Player(player));
         }
     }
 
@@ -59,36 +68,50 @@ class Model {
         for(var team of this.teams){
             var team_dom = document.getElementById(team.name);
             if(team_dom == null){
-                var teamContainer = document.getElementById("team-container");
+                var teamContainerLeft = document.getElementById("team-container-left");
+                var teamContainerRight = document.getElementById("team-container-right");
                 var template = document.getElementById("team-template"); 
                 var clone = template.content.cloneNode(true).children[0];
                 clone.id = team.name;
+                var nametag = clone.getElementsByClassName("team-name")[0]
+                nametag.innerHTML = team.name;
+
+                var teamContainer = null;
+                if(teamContainerLeft.children.length > teamContainerRight.children.length){
+                    teamContainer = teamContainerRight;
+                }else{
+                    teamContainer = teamContainerLeft;
+                }
                 teamContainer.append(clone)
                 team_dom = clone;
             }
 
-            var nametag = team_dom.getElementsByClassName("team-name")[0]
-            nametag.innerHTML = team.name;
 
             var gks =  team_dom.getElementsByClassName("picked-gks")[0]
             var defs = team_dom.getElementsByClassName("picked-defs")[0]
             var mids = team_dom.getElementsByClassName("picked-mids")[0]
             var fwds = team_dom.getElementsByClassName("picked-fwds")[0]
-            gks.innerHTML = "";
-            defs.innerHTML = "";
-            mids.innerHTML = "";
-            fwds.innerHTML = "";
 
             for(var player of team.players){
-                var str = "<p>" + player.name + " (" + player.team + ")" + "</p>";
+                if(document.getElementById(player.id) != null){
+                    continue;
+                }
+                var div = document.createElement("div");
+                div.id = player.id;
+                var shirtImg = document.createElement("img");
+                shirtImg.src = player.getShirtUrl();
+                var playerStr = player.name + " (" + player.team + ")";
+                div.append(shirtImg);
+                div.append(playerStr);
+
                 if(player.pos == "GK"){
-                    gks.innerHTML += str;
+                    gks.append(div);
                 }else if(player.pos == "DEF"){
-                    defs.innerHTML += str;
+                    defs.append(div);
                 }else if(player.pos == "MID"){
-                    mids.innerHTML += str;
+                    mids.append(div)
                 }else if(player.pos == "FWD"){
-                    fwds.innerHTML += str;
+                    fwds.append(div)
                 }else{
                     console.log("NO POS???");
                 }
@@ -100,7 +123,7 @@ class Model {
 var model = new Model();
 
 ws.onmessage = function(event){
-    msg= JSON.parse(event.data)
+    msg= JSON.parse(event.data);
 	var action = msg["action"];
     var picks = msg["picks"];
     if(action == "update"){
