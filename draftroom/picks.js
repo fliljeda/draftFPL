@@ -5,7 +5,7 @@ class Player {
     constructor(player){
         this.name = player.name;
         this.team = player.team;
-        this.pos = player.pos;
+        this.pos = player.pos; // "GK" "DEF" "MID" "FWD"
         this.teamCode = player.team_code;
         this.id = "playerid_" + player.id;
     }
@@ -13,8 +13,9 @@ class Player {
     // Returns the shirt tag of players
     getShirtUrl(){
         var start = "https://draft.premierleague.com/img/shirts/standard/shirt_";
+        var middle = this.pos == "GK" ? this.teamCode + "_1" : this.teamCode;
         var end = "-36.png";
-        return start + this.teamCode + end;
+        return start + middle + end;
     }
 }
 
