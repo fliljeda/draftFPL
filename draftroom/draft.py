@@ -20,7 +20,7 @@ def fetch_fpl_json(uri):
     resp = session.get(url)
     return resp.json()
 
-league_id = "21427"
+league_id = "18090"
 inp = input(f"League ID (default noslack @ {league_id}): ")
 if(inp != ""):
     league_id = inp
