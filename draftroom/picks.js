@@ -1,5 +1,3 @@
-var wsLoc = "wss://noslack.se/ws/"
-var ws = new WebSocket(wsLoc);
 
 class Player {
     constructor(player){
@@ -41,18 +39,10 @@ class Model {
 
     // Adds new teams or updates them if already exists
     updateTeams(picks){
+        this.teams = [];
         for(var team in picks){
-            var teamExists = false
-            for(var existingTeam of this.teams){
-                if(team == existingTeam.name){
-                    existingTeam.addPicks(picks[team]);
-                    teamExists = true;
-                }
-            }
-            if(!teamExists){
-                var t = new LeagueTeam(team, picks[team]);
-                this.teams.push(t);
-            }
+            var t = new LeagueTeam(team, picks[team]);
+            this.teams.push(t);
         }
     }
 
@@ -123,16 +113,29 @@ class Model {
 }
 var model = new Model();
 
-ws.onmessage = function(event){
-    msg= JSON.parse(event.data);
-	var action = msg["action"];
-    var picks = msg["picks"];
-    if(action == "update"){
+var HOST = "localhost"
+var PORT = "8000"
+var PAGE_TITLE = "FPL Draft"
+var server_url = "http://" + HOST + ":" + PORT
+fetchAndUpdate()
+setInterval(fetchAndUpdate, 3000);
+
+function fetchAndUpdate() {
+    httpGetAsync(server_url, function (resp) {
+        var picks = JSON.parse(resp);
         model.updateTeams(picks);
-        //model.printTeams();
         model.draw();
-    }else if(action == "full"){
+    });
+}
+
+
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
     }
-};
-
-
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
